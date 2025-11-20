@@ -62,16 +62,12 @@
             /* コメント本体のスタイル */
             margin-bottom: 8px;
             display: flex;
-            /* アイコンがないため、コメント全体を左寄せにする */
             justify-content: flex-start; 
-            align-items: center; /* 縦方向の中央揃えに変更 */
+            align-items: center;
             animation: fadein 0.8s forwards;
             max-width: 95%;
             opacity: 0;
         }
-
-        /* アイコンのスタイルは完全に削除 */
-        /* .comment-icon { ... } */
 
         .comment-bubble {
             /* 吹き出しのスタイル */
@@ -79,10 +75,6 @@
             background: #FFFFFF;
             padding: 6px 10px;
             border-radius: 15px;
-            
-            /* アイコンを削除したため、左下の角丸を通常の角丸に戻し、よりシンプルな見た目にする */
-            /* border-bottom-left-radius: 4px; を削除 */
-            
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             font-size: 12px;
             line-height: 1.3;
@@ -97,14 +89,13 @@
             /* ユーザー名のスタイル */
             font-weight: bold;
             color: #FF66AA;
-            display: inline; /* blockからinlineに変更 */
-            margin-right: 5px; /* 名前とコメントの間にスペースを空ける */
+            display: inline;
+            margin-right: 5px;
             font-size: 11px;
         }
         
         /* 名前とコメントを同じ行に表示するための調整 */
         .comment-text-container {
-            /* 名前とテキストをひとまとめにするための要素を追加 */
             display: inline;
         }
 
@@ -162,7 +153,8 @@
             { name: "冷蔵庫", text: "……お前、また夜中に来たのかよ……今日はプリン全部食ったら許さんぞ……" },
             { name: "配信者", text: "……え、今なんか聞こえた？" },
             { name: "ラース", text: "！？！？！？" },
-            
+        ]; // ← ここに「];」が抜けていました。
+
         let commentIndex = 0;
         const container = document.getElementById("comments");
         const maxComments = 8;

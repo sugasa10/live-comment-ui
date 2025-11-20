@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Live Comments UI (Mini)</title>
+    <style>
+        /*
+        * 1. ベースデザイン (グリーンバックとスマホの形)
+        */
+        body { 
+            /* 画面はグリーンバック（映像合成用） */
+            background-color: #66FF66; /* 明るいグリーン */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .phone-screen {
+            /* スマホの外枠 (可愛らしいピンク) */
+            width: 240px;
+            height: 510px;
+            background: #FFDDEE;
+            border-radius: 40px;
+            border: 8px solid #FF99AA;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .inner-display {
+            /* 映像がはめ込まれる部分 (透明) */
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 30px;
+            position: relative;
+        }
+
+
+        /*
+        * 2. コメントエリアのデザイン
+        */
+        .comments-area {
+            position: absolute;
+            bottom: 45px;
+            width: 100%;
+            max-height: 80%;
+            overflow: hidden;
+            padding: 0 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .comment {
+            /* コメント本体のスタイル */
+            margin-bottom: 8px;
+            display: flex;
+            /* アイコンがないため、コメント全体を左寄せにする */
+            justify-content: flex-start; 
+            align-items: center; /* 縦方向の中央揃えに変更 */
+            animation: fadein 0.8s forwards;
+            max-width: 95%;
+            opacity: 0;
+        }
+
+        /* アイコンのスタイルは完全に削除 */
+        /* .comment-icon { ... } */
+
+        .comment-bubble {
+            /* 吹き出しのスタイル */
+            color: #333;
+            background: #FFFFFF;
+            padding: 6px 10px;
+            border-radius: 15px;
+            
+            /* アイコンを削除したため、左下の角丸を通常の角丸に戻し、よりシンプルな見た目にする */
+            /* border-bottom-left-radius: 4px; を削除 */
+            
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 12px;
+            line-height: 1.3;
+            position: relative;
+            min-height: 25px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .comment-name {
+            /* ユーザー名のスタイル */
+            font-weight: bold;
+            color: #FF66AA;
+            display: inline; /* blockからinlineに変更 */
+            margin-right: 5px; /* 名前とコメントの間にスペースを空ける */
+            font-size: 11px;
+        }
+        
+        /* 名前とコメントを同じ行に表示するための調整 */
+        .comment-text-container {
+            /* 名前とテキストをひとまとめにするための要素を追加 */
+            display: inline;
+        }
+
+
+        /*
+        * 3. アニメーション
+        */
+        @keyframes fadein {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /*
+        * 4. ダミーの入力欄 (デザインの一部として)
+        */
+        .input-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+            color: #999;
+            font-size: 11px;
+        }
+
+        .input-bar::before {
+            content: 'メッセージを入力...';
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-screen">
+        <div class="inner-display">
+            <div class="comments-area" id="comments">
+                </div>
+            
+            <div class="input-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        const commentsData = [
+            // iconプロパティを削除しました
+            { name: "配信者", text: "おつかれさまー！　今日も8時間耐久ありがとー！　腹減ったから冷蔵庫開けまーす" },
+            { name: "マレナ", text: "wwww開けるなwwww" },
+            { name: "レオ", text: "冷蔵庫の音デカすぎ草" },
+            { name: "配信者", text: "ん？　なんかゴロゴロ言ってるけど、いつものやつだよな？" },
+            { name: "冷蔵庫", text: "……お前、また夜中に来たのかよ……今日はプリン全部食ったら許さんぞ……" },
+            { name: "配信者", text: "……え、今なんか聞こえた？" },
+            { name: "ラース", text: "！？！？！？" },
+            
+        let commentIndex = 0;
+        const container = document.getElementById("comments");
+        const maxComments = 8;
+
+        function createCommentElement(data) {
+            const div = document.createElement("div");
+            div.className = "comment";
+            
+            // アイコン画像を削除し、名前とテキストを連結
+            div.innerHTML = `
+                <div class="comment-bubble">
+                    <span class="comment-name">${data.name}</span>
+                    <span class="comment-text-container">${data.text}</span>
+                </div>
+            `;
+            return div;
+        }
+
+        function addComment() {
+            const commentData = commentsData[commentIndex % commentsData.length];
+            const newComment = createCommentElement(commentData);
+            
+            container.prepend(newComment); 
+
+            if (container.children.length > maxComments) {
+                container.removeChild(container.children[container.children.length - 1]);
+            }
+
+            commentIndex++;
+
+            // 速度設定はそのまま引き継いでいます
+            const nextDelay = 100 + Math.random() * 1800;
+            setTimeout(addComment, nextDelay);
+        }
+
+        // 開始
+        setTimeout(addComment, 1000);
+    </script>
+</body>
+</html>
